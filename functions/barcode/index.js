@@ -1,25 +1,23 @@
 export async function onRequest(context) {
-  const { request } = context;
-  const url = new URL(request.url);
-
+  const url = new URL(context.request.url);
   const text = url.searchParams.get("text");
+
   if (!text) {
-    return new Response("Missing ?text= parameter", {
-      status: 400,
-    });
+    return new Response("Missing ?text=", { status: 400 });
   }
 
-  // Simple fallback PNG (base64 transparent pixel)
-  // This confirms PNG delivery works in Cloudflare
-  const pngBase64 =
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO5l5S8AAAAASUVORK5CYII=";
+  const apiUrl = `https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(text)}&scale=3`;
 
-  const binary = Uint8Array.from(atob(pngBase64), (c) => c.charCodeAt(0));
+  const res = await fetch(apiUrl);
 
-  return new Response(binary, {
+  if (!res.ok) {
+    return new Response("Failed to generate barcode", { status: 502 });
+  }
+
+  return new Response(res.body, {
     headers: {
       "Content-Type": "image/png",
-      "Cache-Control": "no-store",
-    },
+      "Cache-Control": "public, max-age=86400"
+    }
   });
 }

@@ -9,8 +9,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "bwip-js": "^4.8.0"
-  }
+  "type": "commonjs"
 }
